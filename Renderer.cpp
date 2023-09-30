@@ -89,12 +89,35 @@ void Renderer::Render(Scene* pScene) const
 				finalColor = materials[closestHit.materialIndex]->Shade();
 			}
 
+			//Light
+			for (const Light& light : lights)
+			{
+				const Vector3 offset = closestHit.normal * 0.001f;
+				Vector3 LightDirection = LightUtils::GetDirectionToLight(light, closestHit.origin);
+				const float lightRayMagnitude{ LightDirection.Magnitude() };
+				const Ray lightRay{ closestHit.origin + offset, LightDirection, 0.0001f, lightRayMagnitude }; //0.0001f is default but filling it in anyway
+				if (pScene->DoesHit(lightRay))
+				{
+					finalColor *= 0.5f;
+					continue;//go to next light if the ray hits anything
+				}
+				else
+				{
+					//finalColor *= 0.5f;
+				}
+			}
+
+			//add final colors
 			m_pBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBuffer->format,
 				static_cast<uint8_t>(finalColor.r * 255),
 				static_cast<uint8_t>(finalColor.g * 255),
 				static_cast<uint8_t>(finalColor.b * 255));
+
+
+
 		}
 	}
+
 
 	//@END
 	//Update SDL Surface
