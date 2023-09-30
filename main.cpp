@@ -52,7 +52,7 @@ int main(int argc, char* args[])
 	const auto pTimer = new Timer();
 	const auto pRenderer = new Renderer(pWindow);
 
-	const auto pScene = new Scene_W1();
+	const auto pScene = new Scene_W2();
 	pScene->Initialize();
 
 	//Start loop
@@ -84,14 +84,6 @@ int main(int argc, char* args[])
 
 		//--------- Update ---------
 		pScene->Update(pTimer);
-		for (size_t px{}; px < width; ++px)
-		{
-			for (size_t py{ height }; py > 0; --py) //reverse to fix camera space y reversion
-			{
-
-			}
-		}
-
 
 		//--------- Render ---------
 		pRenderer->Render(pScene);

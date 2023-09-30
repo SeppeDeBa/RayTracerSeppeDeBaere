@@ -3,6 +3,7 @@
 #include <fstream>
 #include "Math.h"
 #include "DataTypes.h"
+#include <iostream>
 
 namespace dae
 {
@@ -12,9 +13,86 @@ namespace dae
 		//SPHERE HIT-TESTS
 		inline bool HitTest_Sphere(const Sphere& sphere, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			//todo W1
-			assert(false && "No Implemented Yet!");
-			return false;
+
+			bool useReworkedVersion{ true };
+			if (!useReworkedVersion)
+			{
+				//calculations start
+				const Vector3 originToCenter{ sphere.origin - ray.origin };//L (oc)
+				const float lengthOriginToPerpSphereCenter{ Vector3::Dot(originToCenter,ray.direction) }; //tca == o to c dot direction
+				//discriminant
+				const float discriminant = lengthOriginToPerpSphereCenter * lengthOriginToPerpSphereCenter - (Vector3::Dot(originToCenter, originToCenter) - sphere.radius * sphere.radius);
+				if (discriminant < 0.f)
+				{
+					hitRecord.didHit = false;
+					//std::cout << "exited at discriminant" << std::endl;
+					return false;
+				}
+
+				//std::cout << "passed discriminant check" << std::endl;
+				const float perpPointToSphereCenter = Vector3::Reject(originToCenter, ray.direction).SqrMagnitude();//od^2
+				const float intersectToPerp = sqrt(sphere.radius * sphere.radius - lengthOriginToPerpSphereCenter);//thc
+				const float intersectFrontLength = lengthOriginToPerpSphereCenter - intersectToPerp;//t0
+				if (intersectFrontLength > ray.max)
+				{
+					hitRecord.didHit = false;
+					//std::cout << "exited at distance Long" << std::endl;
+					return false;
+				}
+				else if (intersectFrontLength < ray.min)
+				{
+					hitRecord.didHit = false;
+					//std::cout << "exited at distance short" << std::endl;
+					return false;
+				}
+				hitRecord.didHit = true;
+				//std::cout << "Hit!" << std::endl;
+				//add to hitRecord
+				hitRecord.materialIndex = sphere.materialIndex;
+				hitRecord.t = intersectFrontLength;
+				hitRecord.origin = ray.origin + ray.direction * intersectFrontLength;
+				hitRecord.normal = Vector3(sphere.origin, hitRecord.origin).Normalized();
+				return true;
+			}
+
+
+
+			else
+			{
+				const Vector3 rayOriginToSphereOrigin{ sphere.origin - ray.origin };
+				const float hypothenuseSquared{ rayOriginToSphereOrigin.SqrMagnitude() };
+				const float side1{ Vector3::Dot(rayOriginToSphereOrigin, ray.direction) };
+
+				const float distanceToRaySquared{ hypothenuseSquared - side1 * side1 };
+
+				//if the distance to the ray is larger than the radius there will be no results
+				//    also if equal because that is the exact border of the circle
+				if (distanceToRaySquared >= sphere.radius * sphere.radius) {
+					hitRecord.didHit = false;
+					return false;
+				}
+
+				const float distanceRaypointToIntersect{ sqrt(sphere.radius * sphere.radius - distanceToRaySquared) };
+				const float distance{ side1 - distanceRaypointToIntersect };
+
+				if (distance < ray.min || distance > ray.max) {
+					hitRecord.didHit = false;
+					return false;
+				}
+
+				hitRecord.didHit = true;
+				if (ignoreHitRecord) {
+					return true;
+				}
+				hitRecord.materialIndex = sphere.materialIndex;
+				hitRecord.t = distance;
+				hitRecord.origin = ray.origin + distance * ray.direction;
+				hitRecord.normal = Vector3(sphere.origin, hitRecord.origin).Normalized();
+				return true;
+			}
+
+
+			
 		}
 
 		inline bool HitTest_Sphere(const Sphere& sphere, const Ray& ray)
@@ -28,7 +106,21 @@ namespace dae
 		inline bool HitTest_Plane(const Plane& plane, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
 			//todo W1
-			assert(false && "No Implemented Yet!");
+			//assert(false && "No Implemented Yet!");
+			const float distance{ Vector3::Dot(Vector3{ ray.origin, plane.origin }, plane.normal) / Vector3::Dot(ray.direction, plane.normal) };
+			if (distance >= ray.min && distance <= ray.max) {
+				hitRecord.didHit = true;
+				if (ignoreHitRecord) {
+					return true;
+				}
+				hitRecord.t = distance;
+				hitRecord.materialIndex = plane.materialIndex;
+				hitRecord.normal = plane.normal;
+				hitRecord.origin = ray.origin + distance * ray.direction;
+				return true;
+			}
+			hitRecord.didHit = false;
+			return false;
 			return false;
 		}
 
