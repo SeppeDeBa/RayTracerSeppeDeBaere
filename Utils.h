@@ -105,7 +105,7 @@ namespace dae
 		//PLANE HIT-TESTS
 		inline bool HitTest_Plane(const Plane& plane, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			//todo W1
+			
 			//assert(false && "No Implemented Yet!");
 			const float distance{ Vector3::Dot(Vector3{ ray.origin, plane.origin }, plane.normal) / Vector3::Dot(ray.direction, plane.normal) };
 			if (distance >= ray.min && distance <= ray.max) {

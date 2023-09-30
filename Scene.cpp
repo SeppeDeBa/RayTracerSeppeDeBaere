@@ -28,7 +28,7 @@ namespace dae {
 
 	void dae::Scene::GetClosestHit(const Ray& ray, HitRecord& closestHit) const
 	{
-		//todo W1
+		
 		//assert(false && "No Implemented Yet!");
 		HitRecord currentHitRecord{};
 

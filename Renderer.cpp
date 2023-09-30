@@ -32,23 +32,31 @@ void Renderer::Render(Scene* pScene) const
 	auto& materials = pScene->GetMaterials();
 	auto& lights = pScene->GetLights();
 
+	//week2: calculate fov and cameraToWorld
+	const float fov{ tanf((camera.fovAngle * TO_RADIANS) / 2) };
+	const Matrix cameraToWorld{ camera.CalculateCameraToWorld() };
+
+
 
 	for (int px{}; px < m_Width; ++px)
 	{
-		const float rayDirectionX{ ((2 * (px + 0.5f)) / m_Width - 1) * m_AspectRatio };
+		const float rayDirectionX{ (((2 * (px + 0.5f)) / m_Width - 1) * m_AspectRatio) * fov };
 		for (int py{}; py < m_Height; ++py)
 		{
-			const float rayDirectionY{ 1.f - (2 * (py + 0.5f) / m_Height) };
+			const float rayDirectionY{ (1.f - (2 * (py + 0.5f) / m_Height)) * fov };
 			//old gradient code used to add to finalColor
 			//float gradient = px / static_cast<float>(m_Width);
 			//gradient += py / static_cast<float>(m_Width);
 			//gradient /= 2.0f;
 
+			Vector3 finalRayVector{ cameraToWorld.TransformVector(rayDirectionX, rayDirectionY,1).Normalized() };
+				
 
-			Vector3 finalRayVector{ rayDirectionX
-								,	rayDirectionY
-								,	1.f }; //constant 1; could be 0 but making 1 to add blue to match the renderer example
-			finalRayVector.Normalize();
+			//old code, keeping for backup
+			//Vector3 finalRayVector{ rayDirectionX
+			//					,	rayDirectionY
+			//					,	1.f }; //constant 1; could be 0 but making 1 to add blue to match the renderer example
+			//finalRayVector.Normalize();
 		
 
 			Ray viewRay{ camera.origin, finalRayVector }; ////todo ask flor: is m_ScreenMiddle == Camera.Origin()?

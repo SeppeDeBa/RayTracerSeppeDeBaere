@@ -104,9 +104,13 @@ namespace dae {
 
 	Matrix Matrix::CreateTranslation(float x, float y, float z)
 	{
-		//todo W2
-		assert(false && "Not Implemented Yet");
-		return {};
+		Matrix bufferMatrix{};
+		bufferMatrix.data[0] = Vector4{ 1, 0, 0, 0 };
+		bufferMatrix.data[1] = Vector4{ 0, 1, 0, 0 };
+		bufferMatrix.data[2] = Vector4{ 0, 0, 1, 0 };
+		bufferMatrix.data[3] = Vector4{ x, y, z, 1 };
+		
+		return bufferMatrix;
 	}
 
 	Matrix Matrix::CreateTranslation(const Vector3& t)
@@ -116,30 +120,42 @@ namespace dae {
 
 	Matrix Matrix::CreateRotationX(float pitch)
 	{
-		//todo W2
-		assert(false && "Not Implemented Yet");
-		return {};
+		Matrix bufferMatrix{};
+		bufferMatrix.data[0] = Vector4{ 1, 0, 0, 0 };
+		bufferMatrix.data[1] = Vector4{ 0, cosf(pitch * TO_RADIANS), -sinf(pitch*TO_RADIANS), 0};
+		bufferMatrix.data[2] = Vector4{ 0, sinf(pitch * TO_RADIANS), cosf(pitch * TO_RADIANS), 0};
+		bufferMatrix.data[3] = Vector4{ 0, 0, 0, 1 };
+
+		return bufferMatrix;
 	}
 
 	Matrix Matrix::CreateRotationY(float yaw)
 	{
-		//todo W2
-		assert(false && "Not Implemented Yet");
-		return {};
+		Matrix bufferMatrix{};
+		bufferMatrix.data[0] = Vector4{ cosf(yaw * TO_RADIANS), 0, -sinf(yaw * TO_RADIANS), 0 };
+		bufferMatrix.data[1] = Vector4{ 0, 1 , 0, 0 };
+		bufferMatrix.data[2] = Vector4{ sinf(yaw * TO_RADIANS), 0, cosf(yaw * TO_RADIANS), 0 };
+		bufferMatrix.data[3] = Vector4{ 0, 0, 0, 1 };
+
+		return bufferMatrix;
 	}
 
 	Matrix Matrix::CreateRotationZ(float roll)
 	{
-		//todo W2
-		assert(false && "Not Implemented Yet");
-		return {};
+		Matrix bufferMatrix{};
+		bufferMatrix.data[0] = Vector4{ cosf(roll * TO_RADIANS),  -sinf(roll * TO_RADIANS), 0 , 0 };
+		bufferMatrix.data[1] = Vector4{ sinf(roll * TO_RADIANS), cosf(roll * TO_RADIANS) , 0, 0 };
+		bufferMatrix.data[2] = Vector4{0, 0, 1 , 0 };
+		bufferMatrix.data[3] = Vector4{ 0, 0, 0, 1 };
+
+		return bufferMatrix;
 	}
 
 	Matrix Matrix::CreateRotation(const Vector3& r)
 	{
-		//todo W2
-		assert(false && "Not Implemented Yet");
-		return {};
+		Matrix bufferMatrix{};
+		bufferMatrix = CreateRotationX(r.x) * CreateRotationY(r.y) * CreateRotationZ(r.z);
+		return bufferMatrix;
 	}
 
 	Matrix Matrix::CreateRotation(float pitch, float yaw, float roll)
@@ -149,9 +165,12 @@ namespace dae {
 
 	Matrix Matrix::CreateScale(float sx, float sy, float sz)
 	{
-		//todo W2
-		assert(false && "Not Implemented Yet");
-		return {};
+		Matrix bufferMatrix{};
+		bufferMatrix.data[0] = Vector4{ sx, 0, 0, 0 };
+		bufferMatrix.data[1] = Vector4{ 0, sy, 0, 0 };
+		bufferMatrix.data[2] = Vector4{ 0, 0, sz, 0 };
+		bufferMatrix.data[3] = Vector4{ 0, 0, 0, 1 };
+		return bufferMatrix;
 	}
 
 	Matrix Matrix::CreateScale(const Vector3& s)

@@ -34,15 +34,33 @@ namespace dae
 
 		Matrix CalculateCameraToWorld()
 		{
-			//todo: W2
-			assert(false && "Not Implemented Yet");
-			return {};
+			
+			//1. calculate camera axis system
+			Vector3 cameraRight{ Vector3::Cross(Vector3::UnitY, forward).Normalized()};
+			Vector3 cameraUp{ Vector3::Cross(forward, cameraRight).Normalized() };
+
+			//2. create cameraToWorld Matrix
+			Matrix cameraToWorldMatrix
+			{
+				Vector4{ cameraRight, 0},
+				Vector4{ cameraUp, 0 },
+				Vector4{ forward, 0 },
+				Vector4{ cameraRight, 1 }
+			};
+
+			//3. update axis system to calculated system
+			right = cameraRight;
+			up = cameraUp;
+
+
+
+			return cameraToWorldMatrix;
 		}
 
 		void Update(Timer* pTimer)
 		{
 			const float deltaTime = pTimer->GetElapsed();
-
+			
 			//Keyboard Input
 			const uint8_t* pKeyboardState = SDL_GetKeyboardState(nullptr);
 
@@ -51,8 +69,45 @@ namespace dae
 			int mouseX{}, mouseY{};
 			const uint32_t mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
 
-			//todo: W2
-			//assert(false && "Not Implemented Yet");
+
+			
+			//implement movement
+			const float movementSpeed{ 5.f * pTimer->GetElapsed() };
+			if(pKeyboardState[SDL_SCANCODE_W])
+			{
+				this->origin += forward * movementSpeed;
+			}
+			else if (pKeyboardState[SDL_SCANCODE_S])
+			{
+				this->origin -= forward * movementSpeed;
+			}
+			else if (pKeyboardState[SDL_SCANCODE_A])
+			{
+				this->origin -= right * movementSpeed;
+			}
+			else if (pKeyboardState[SDL_SCANCODE_D])
+			{
+				this->origin += right * movementSpeed;
+			}
+
+
+			//implement rotation
+			Matrix rotationMatrix{};
+			const float rotationSpeed{ 10.f * pTimer->GetElapsed() };
+
+			if ((mouseState & SDL_BUTTON_RMASK) != 0) //right mouse
+			{
+				//update members
+				totalYaw += mouseX * rotationSpeed;
+				totalPitch -= mouseY * rotationSpeed;
+
+				//create rotation matrix
+				rotationMatrix = Matrix::CreateRotation(totalPitch, totalYaw, 0);
+
+				//update forward vector, the rest will calculate off of this.
+				forward = rotationMatrix.TransformVector(Vector3::UnitZ);
+				forward.Normalize();
+			}
 		}
 	};
 }
