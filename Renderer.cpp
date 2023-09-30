@@ -59,7 +59,7 @@ void Renderer::Render(Scene* pScene) const
 			//finalRayVector.Normalize();
 		
 
-			Ray viewRay{ camera.origin, finalRayVector }; ////todo ask flor: is m_ScreenMiddle == Camera.Origin()?
+			Ray viewRay{ camera.origin, finalRayVector };
 
 
 			//show ray direction through colours:
@@ -74,44 +74,40 @@ void Renderer::Render(Scene* pScene) const
 
 			//hitRecord containing closest hit
 			HitRecord closestHit{};
+			
 			pScene->GetClosestHit(viewRay, closestHit);
-
-			//sphere:
-			//Sphere testSphere{ {0.f,0.f,100.f},50.f,0 };
-
-			//perform sphere HitTest
-			//GeometryUtils::HitTest_Sphere(testSphere, viewRay, closestHit);
-
-			if (closestHit.didHit)
+			if (closestHit.didHit) //if not, color will stay black
 			{
-				//const float scaled_t = (closestHit.t - 50.f) / 40.f;
-				//finalColor = { scaled_t ,scaled_t ,scaled_t };
 				finalColor = materials[closestHit.materialIndex]->Shade();
-			}
+
 
 			//Light
 			for (const Light& light : lights)
 			{
 				const Vector3 offset = closestHit.normal * 0.001f;
 				Vector3 LightDirection = LightUtils::GetDirectionToLight(light, closestHit.origin);
-				const float lightRayMagnitude{ LightDirection.Magnitude() };
-				const Ray lightRay{ closestHit.origin + offset, LightDirection, 0.0001f, lightRayMagnitude }; //0.0001f is default but filling it in anyway
+				const float lightRayNormalized{ LightDirection.Normalize() };
+				const Ray lightRay{ closestHit.origin + offset, LightDirection, 0.0001f, lightRayNormalized }; //0.0001f is default but filling it in anyway
 				if (pScene->DoesHit(lightRay))
 				{
 					finalColor *= 0.5f;
-					continue;//go to next light if the ray hits anything
-				}
-				else
-				{
-					//finalColor *= 0.5f;
 				}
 			}
 
 			//add final colors
+			finalColor.MaxToOne();
 			m_pBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBuffer->format,
 				static_cast<uint8_t>(finalColor.r * 255),
 				static_cast<uint8_t>(finalColor.g * 255),
 				static_cast<uint8_t>(finalColor.b * 255));
+
+
+
+
+			}
+
+
+	
 
 
 
