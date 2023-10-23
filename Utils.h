@@ -135,8 +135,84 @@ namespace dae
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
 			//todo W5
-			assert(false && "No Implemented Yet!");
-			return false;
+			//assert(false && "No Implemented Yet!");
+
+			//slide 4
+			const Vector3 a = triangle.v1 - triangle.v0;
+			const Vector3 b = triangle.v2 - triangle.v0;
+			const float dotRayNormal{ Vector3::Dot(triangle.normal, ray.direction) };
+			if (AreEqual(dotRayNormal, 0.f))
+			{
+				return false;
+			}
+
+			//cullModes
+			if (triangle.cullMode == TriangleCullMode::FrontFaceCulling)
+			{
+				if (dotRayNormal < 0.f && !ignoreHitRecord)
+				{
+					return false;
+				}
+				if (ignoreHitRecord && dotRayNormal > 0.f)
+				{
+					return false;
+				}
+			}
+			else if (triangle.cullMode == TriangleCullMode::BackFaceCulling)
+			{
+				if (dotRayNormal > 0.f && !ignoreHitRecord)
+				{
+					return false;
+				}
+				if (ignoreHitRecord && dotRayNormal < 0.f)
+				{
+					return false;
+				}
+			}
+
+			const Vector3 center = (triangle.v0 + triangle.v1 + triangle.v2) / 3.f;
+
+			const Vector3 l = center - ray.origin;
+
+
+			//slide 5
+			const float t = Vector3::Dot(l, triangle.normal) / Vector3::Dot(ray.direction, triangle.normal);
+			if (t < ray.min || t > ray.max)
+			{
+				return false;
+			}
+
+			//slide 18
+			const Vector3 p = ray.origin + t * ray.direction;
+
+			//check all edges
+			const Vector3 edgeA = triangle.v1 - triangle.v0;
+			const Vector3 pointToSideV0 = p - triangle.v0;
+			if (Vector3::Dot(triangle.normal, Vector3::Cross(edgeA, pointToSideV0)) < 0)
+			{
+				return false;
+			}
+
+			const Vector3 edgeB = triangle.v2 - triangle.v1;
+			const Vector3 pointToSideV1 = p - triangle.v1;
+			if (Vector3::Dot(triangle.normal, Vector3::Cross(edgeB, pointToSideV1)) < 0)
+			{
+				return false;
+			}
+
+			const Vector3 edgeC = triangle.v0 - triangle.v2;
+			const Vector3 pointToSideV2 = p - triangle.v2;
+			if (Vector3::Dot(triangle.normal, Vector3::Cross(edgeC, pointToSideV2)) < 0)
+			{
+				return false;
+			}
+
+			hitRecord.didHit = true;
+			hitRecord.normal = triangle.normal;
+			hitRecord.materialIndex = triangle.materialIndex;
+			hitRecord.t = t;
+			hitRecord.origin = p;
+			return true;
 		}
 
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray)
@@ -149,8 +225,34 @@ namespace dae
 		inline bool HitTest_TriangleMesh(const TriangleMesh& mesh, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
 			//todo W5
-			assert(false && "No Implemented Yet!");
-			return false;
+			//assert(false && "No Implemented Yet!");
+			float distance{ FLT_MAX };
+			HitRecord tempHitRecord{};
+
+			for (int triangleNr{}; triangleNr < int(mesh.indices.size() / 3); ++triangleNr) //3 indices indicate 1 triangle
+			{
+				const Vector3 v0{ mesh.transformedPositions[mesh.indices[triangleNr * 3]] };
+				const Vector3 v1{ mesh.transformedPositions[mesh.indices[triangleNr * 3 + 1]] };
+				const Vector3 v2{ mesh.transformedPositions[mesh.indices[triangleNr * 3 + 2]] };
+
+				Triangle triangle{ v0,v1,v2, mesh.transformedNormals[triangleNr] };
+
+				triangle.cullMode = mesh.cullMode;
+				triangle.materialIndex = mesh.materialIndex;
+				if (HitTest_Triangle(triangle, ray, tempHitRecord, ignoreHitRecord))
+				{
+					if (ignoreHitRecord)
+					{
+						return true;
+					}
+					if (tempHitRecord.didHit && tempHitRecord.t < distance)
+					{
+						distance = tempHitRecord.t;
+						hitRecord = tempHitRecord;
+					}
+				}
+			}
+			return hitRecord.didHit;
 		}
 
 		inline bool HitTest_TriangleMesh(const TriangleMesh& mesh, const Ray& ray)
