@@ -171,11 +171,27 @@ namespace dae
 			return light.origin - origin;
 		}
 
-		inline ColorRGB GetRadiance(const Light& light, const Vector3& target)
+		inline ColorRGB GetRadiance(const Light& light, const Vector3& target) //does this not return irradiance?
 		{
 			//todo W3
-			assert(false && "No Implemented Yet!");
-			return {};
+			//assert(false && "No Implemented Yet!");
+			ColorRGB irradiance{};
+			switch (light.type)
+			{
+			case dae::LightType::Point:
+				irradiance = light.color * (light.intensity / (light.origin - target).SqrMagnitude());//week 3, slide 25
+				break;
+
+			case dae::LightType::Directional:
+				irradiance = light.color * light.intensity;//week 3, slide 27w
+				break;
+
+			default:
+				assert(false && "Default has been hit in GetRadiance in utils.h");
+				return {};
+				break;
+			}
+			return irradiance; //could be in one step but i find this slightly more readable for myself
 		}
 	}
 

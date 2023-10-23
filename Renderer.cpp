@@ -75,42 +75,78 @@ void Renderer::Render(Scene* pScene) const
 			//hitRecord containing closest hit
 			HitRecord closestHit{};
 			
+			//using float 0.001f = DELTA_EPSILON;
 			pScene->GetClosestHit(viewRay, closestHit);
 			if (closestHit.didHit) //if not, color will stay black
 			{
-				finalColor = materials[closestHit.materialIndex]->Shade();
+				
 
-
-			//Light
-			for (const Light& light : lights)
-			{
-				const Vector3 offset = closestHit.normal * 0.001f;
-				Vector3 LightDirection = LightUtils::GetDirectionToLight(light, closestHit.origin);
-				const float lightRayNormalized{ LightDirection.Normalize() };
-				const Ray lightRay{ closestHit.origin + offset, LightDirection, 0.0001f, lightRayNormalized }; //0.0001f is default but filling it in anyway
-				if (pScene->DoesHit(lightRay))
+				if (m_ShadowsEnabled)
 				{
-					finalColor *= 0.5f;
-				}
-			}
+					for (const Light& light : lights)
+					{
+						//check cosine law by doing a dot with the camera normal and the lightDirection.
+						const float LambertCosineLaw{ Vector3::Dot(closestHit.normal, LightUtils::GetDirectionToLight(light, closestHit.origin).Normalized()) };
 
+						if (LambertCosineLaw < 0) //this means that the angle of view is negative, so we can skip this for shading calculations. week 3 ppt slide 40
+						{
+							continue;
+						}
+
+
+						const Vector3 offset = closestHit.normal * 0.001f;
+						Vector3 LightDirection = LightUtils::GetDirectionToLight(light, closestHit.origin);
+						const float lightRayNormalized{ LightDirection.Normalize() };
+						const Ray lightRay{ closestHit.origin + offset, LightDirection, 0.0001f , lightRayNormalized }; //0.0001f is default but filling it in anyway
+						
+						if (pScene->DoesHit(lightRay) /*&& m_ShadowsEnabled*/) //week 3 ppt slide 40
+						{
+							continue;
+						}
+						
+						const ColorRGB irradiance{ LightUtils::GetRadiance(light, closestHit.origin) };
+						const ColorRGB BRDF{ materials[closestHit.materialIndex]->Shade(closestHit, LightDirection, -finalRayVector) };
+
+
+
+						switch (m_CurrentLightingMode)
+						{
+						case dae::Renderer::LightingMode::ObservedArea:
+							finalColor += ColorRGB{LambertCosineLaw, LambertCosineLaw, LambertCosineLaw};
+							break;
+						case dae::Renderer::LightingMode::Radiance:
+							finalColor += irradiance;
+							break;
+						case dae::Renderer::LightingMode::BRDF:
+							finalColor += BRDF;
+							break;
+						case dae::Renderer::LightingMode::Combined:
+							break;
+						default:
+							break;
+						}
+						
+						
+						if (pScene->DoesHit(lightRay))
+						{
+							finalColor *= 0.5f;
+						}
+					}
+				}
+				//Light
+			}
+			else
+			{
+				finalColor.r = 0.f;
+				finalColor.g = 0.f;
+				finalColor.b = 0.f;
+			}
 			//add final colors
 			finalColor.MaxToOne();
 			m_pBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBuffer->format,
 				static_cast<uint8_t>(finalColor.r * 255),
 				static_cast<uint8_t>(finalColor.g * 255),
 				static_cast<uint8_t>(finalColor.b * 255));
-
-
-
-
-			}
-
-
-	
-
-
-
 		}
 	}
 
@@ -123,4 +159,27 @@ void Renderer::Render(Scene* pScene) const
 bool Renderer::SaveBufferToImage() const
 {
 	return SDL_SaveBMP(m_pBuffer, "RayTracing_Buffer.bmp");
+}
+
+void dae::Renderer::CycleLightningMode()
+{
+
+	switch (m_CurrentLightingMode)
+	{
+	case dae::Renderer::LightingMode::ObservedArea:
+		m_CurrentLightingMode = LightingMode::Radiance;
+		break;
+	case dae::Renderer::LightingMode::Radiance:
+		m_CurrentLightingMode = LightingMode::BRDF;
+		break;
+	case dae::Renderer::LightingMode::BRDF:
+		m_CurrentLightingMode = LightingMode::Combined;
+		break;
+	case dae::Renderer::LightingMode::Combined:
+		m_CurrentLightingMode = LightingMode::ObservedArea;
+		break;
+	default:
+		std::cout << "Unknown enum reached in CycleLightningMode in Renderer.cpp" << std::endl;
+		break;
+	}
 }
