@@ -44,7 +44,8 @@ namespace dae
 		static ColorRGB Phong(float ks, float exp, const Vector3& l, const Vector3& v, const Vector3& n)
 		{
 			//todo: W3
-			const Vector3 reflect = l - (2.f *  (Vector3::Dot(n, l) * n)); //powerpoint week 3, slide 47
+			//const Vector3 reflect = l - (2.f *  (Vector3::Dot(n, l) * n)); //powerpoint week 3, slide 47
+			const Vector3 reflect = Vector3::Reflect(l, n); //replaced with built in function of framework
 			float cosAlpha = Vector3::Dot(reflect, v);
 			if (cosAlpha < 0.f) cosAlpha = 0.f; //cannot be negative
 			
@@ -65,7 +66,7 @@ namespace dae
 		{
 			//todo: W3
 			//assert(false && "Not Implemented Yet");
-			const ColorRGB metalness{ 1 - f0.r, 1 - f0.g, 1 - f0.b }; //replacing f0 in the fresnel calculation with this
+			const ColorRGB metalness{ 1.f - f0.r, 1.f - f0.g, 1 - f0.b }; //replacing f0 in the fresnel calculation with this
 			const ColorRGB Fresnel{ f0 + (metalness * powf(1 - Vector3::Dot(h,v), 5)) }; //added extra brackets before metalness for visual clarity
 			return Fresnel;
 		}
@@ -123,9 +124,11 @@ namespace dae
 		{
 			//todo: W3
 			//assert(false && "Not Implemented Yet");
+			//direct lighting w3 slide 70
 			const float roughnessSquared{ Square(roughness) };
 			const float k{ Square(roughnessSquared + 1.f) / 8.f };
 			return GeometryFunction_SchlickGGX(n, v, k) * GeometryFunction_SchlickGGX(n, l, k);
+			//return GeometryFunction_SchlickGGX(n, v, roughness) * GeometryFunction_SchlickGGX(n, l, roughness);
 		}
 
 	}
