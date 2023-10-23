@@ -109,6 +109,21 @@ namespace dae
 
 	};
 
+	class Scene_W3Test final : public Scene
+	{
+	public:
+		Scene_W3Test() = default;
+		~Scene_W3Test() override = default;
+
+		Scene_W3Test(const Scene_W2&) = delete;
+		Scene_W3Test(Scene_W3Test&&) noexcept = delete;
+		Scene_W3Test& operator=(const Scene_W3Test&) = delete;
+		Scene_W3Test& operator=(Scene_W3Test&&) noexcept = delete;
+
+		void Initialize() override;
+
+	};
+
 
 
 

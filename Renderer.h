@@ -38,7 +38,7 @@ namespace dae
 			Combined //Observed Area * Radiance * BRDF
 		};
 
-		LightingMode m_CurrentLightingMode{ LightingMode::ObservedArea };
+		LightingMode m_CurrentLightingMode{ LightingMode::Combined };
 
 		bool m_ShadowsEnabled{ true };
 

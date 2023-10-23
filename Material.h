@@ -61,7 +61,7 @@ namespace dae
 		{
 			//todo: W3
 			//assert(false && "Not Implemented Yet");
-			return {};
+			return BRDF::Lambert(m_DiffuseReflectance, m_DiffuseColor);
 		}
 
 	private:
@@ -86,7 +86,8 @@ namespace dae
 		{
 			//todo: W3
 			//assert(false && "Not Implemented Yet");
-			return {};
+			return BRDF::Lambert(m_DiffuseReflectance, m_DiffuseColor)
+				+ BRDF::Phong(m_SpecularReflectance, m_PhongExponent, l, -v, hitRecord.normal);//week 3 ppt, slide 48
 		}
 
 	private:
@@ -111,7 +112,43 @@ namespace dae
 		{
 			//todo: W3
 			//assert(false && "Not Implemented Yet");
-			return {};
+
+			//slide 73 w3!
+			//if (m_Roughness < 0.1f)
+			//{
+			//	return{};
+			//}
+			ColorRGB f0{}; //week 3 ppt, slide 69
+			if (m_Metalness == 0.f)
+			{
+				f0 = ColorRGB(0.04f, 0.04f, 0.04f);
+			}
+			else
+			{
+				f0 = m_Albedo;
+			}
+
+			
+			const Vector3 halfVector{ (v + l) / (v + l).Magnitude() }; //manual normalisation
+			const ColorRGB f = BRDF::FresnelFunction_Schlick(halfVector, v, f0);
+			const float d = BRDF::NormalDistribution_GGX(hitRecord.normal, halfVector, m_Roughness);
+			const float g = BRDF::GeometryFunction_Smith(hitRecord.normal, v, l, m_Roughness);
+
+			const ColorRGB fdg{ f.r * d * g, f.g * d * g, f.b * d * g }; //combine all with fresnel seperated into rgb
+
+			//calculate normals
+			const float vn = Vector3::Dot(v, hitRecord.normal);
+			const float ln = Vector3::Dot(l, hitRecord.normal);
+
+
+			const ColorRGB specular = (d * f * g) / (4 * Vector3::Dot(v, hitRecord.normal) * Vector3::Dot(l, hitRecord.normal));
+			//const ColorRGB specular = { fdg.r / (4 * vn * ln), fdg.g / (4 * vn * ln),fdg.b / (4 * vn * ln) }; //w3, slide 67
+			
+			const ColorRGB kd = ColorRGB{ 1, 1, 1 } - f; //diffuse reflectance
+
+			const ColorRGB diffuse{ BRDF::Lambert(kd, m_Albedo) };
+
+			return (diffuse + specular);
 		}
 
 	private:

@@ -79,62 +79,55 @@ void Renderer::Render(Scene* pScene) const
 			pScene->GetClosestHit(viewRay, closestHit);
 			if (closestHit.didHit) //if not, color will stay black
 			{
-				
 
-				if (m_ShadowsEnabled)
+				for (const Light& light : lights)
 				{
-					for (const Light& light : lights)
+					//check cosine law by doing a dot with the camera normal and the lightDirection.
+					const float LambertCosineLaw{ Vector3::Dot(closestHit.normal, LightUtils::GetDirectionToLight(light, closestHit.origin).Normalized()) };
+
+					if (LambertCosineLaw < 0) //this means that the angle of view is negative, so we can skip this for shading calculations. week 3 ppt slide 40
 					{
-						//check cosine law by doing a dot with the camera normal and the lightDirection.
-						const float LambertCosineLaw{ Vector3::Dot(closestHit.normal, LightUtils::GetDirectionToLight(light, closestHit.origin).Normalized()) };
-
-						if (LambertCosineLaw < 0) //this means that the angle of view is negative, so we can skip this for shading calculations. week 3 ppt slide 40
-						{
-							continue;
-						}
-
-
-						const Vector3 offset = closestHit.normal * 0.001f;
-						Vector3 LightDirection = LightUtils::GetDirectionToLight(light, closestHit.origin);
-						const float lightRayNormalized{ LightDirection.Normalize() };
-						const Ray lightRay{ closestHit.origin + offset, LightDirection, 0.0001f , lightRayNormalized }; //0.0001f is default but filling it in anyway
-						
-						//no need to continue if lightRay hits.
-						if (pScene->DoesHit(lightRay) /*&& m_ShadowsEnabled*/) //week 3 ppt slide 40
-						{
-							continue;
-						}
-						
-						const ColorRGB irradiance{ LightUtils::GetRadiance(light, closestHit.origin) };
-						const ColorRGB BRDF{ materials[closestHit.materialIndex]->Shade(closestHit, LightDirection, -finalRayVector) };
-
-
-
-						switch (m_CurrentLightingMode)
-						{
-						case dae::Renderer::LightingMode::ObservedArea:
-							finalColor += ColorRGB{LambertCosineLaw, LambertCosineLaw, LambertCosineLaw};
-							break;
-						case dae::Renderer::LightingMode::Radiance:
-							finalColor += irradiance;
-							break;
-						case dae::Renderer::LightingMode::BRDF:
-							finalColor += BRDF;
-							break;
-						case dae::Renderer::LightingMode::Combined:
-							break;
-						default:
-							break;
-						}
-						
-						
-						if (pScene->DoesHit(lightRay))
-						{
-							finalColor *= 0.5f;
-						}
+						continue;
 					}
+
+
+					const Vector3 offset = closestHit.normal * 0.001f;
+					Vector3 LightDirection = LightUtils::GetDirectionToLight(light, closestHit.origin);
+					const float lightRayNormalized{ LightDirection.Normalize() };
+					const Ray lightRay{ closestHit.origin + offset, LightDirection, 0.001f , lightRayNormalized }; //0.0001f is default but filling it in anyway
+
+					//no need to continue if lightRay hits.
+					if (pScene->DoesHit(lightRay) && m_ShadowsEnabled) //week 3 ppt slide 40, also moved shadowsEnabled check here
+					{
+						continue;
+					}
+
+					const ColorRGB irradiance{ LightUtils::GetRadiance(light, closestHit.origin) };
+					const ColorRGB BRDF{ materials[closestHit.materialIndex]->Shade(closestHit, LightDirection, -finalRayVector) };
+
+
+
+					switch (m_CurrentLightingMode)
+					{
+					case dae::Renderer::LightingMode::ObservedArea:
+						finalColor += ColorRGB{ LambertCosineLaw, LambertCosineLaw, LambertCosineLaw };
+						break;
+					case dae::Renderer::LightingMode::Radiance:
+						finalColor += irradiance;
+						break;
+					case dae::Renderer::LightingMode::BRDF:
+						finalColor += BRDF;
+						break;
+					case dae::Renderer::LightingMode::Combined:
+						finalColor += (LambertCosineLaw * irradiance * BRDF);
+						break;
+					default:
+						break;
+					}
+
+
 				}
-				//Light
+
 			}
 			else
 			{

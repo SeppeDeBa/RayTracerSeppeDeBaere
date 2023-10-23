@@ -127,7 +127,14 @@ namespace dae
 		}
 		#pragma endregion
 	};
-
+	inline ColorRGB operator/(const ColorRGB& lhs, float rhs)
+	{
+		return { lhs.r / rhs, lhs.g / rhs, lhs.b / rhs };
+	}
+	inline ColorRGB operator/(float lhs, const ColorRGB& rhs)
+	{
+		return { lhs / rhs.r, lhs / rhs.g, lhs / rhs.b };
+	}
 	//ColorRGB (Global) Operators
 	inline ColorRGB operator*(float s, const ColorRGB& c)
 	{
