@@ -99,6 +99,7 @@ void Renderer::Render(Scene* pScene) const
 						const float lightRayNormalized{ LightDirection.Normalize() };
 						const Ray lightRay{ closestHit.origin + offset, LightDirection, 0.0001f , lightRayNormalized }; //0.0001f is default but filling it in anyway
 						
+						//no need to continue if lightRay hits.
 						if (pScene->DoesHit(lightRay) /*&& m_ShadowsEnabled*/) //week 3 ppt slide 40
 						{
 							continue;
