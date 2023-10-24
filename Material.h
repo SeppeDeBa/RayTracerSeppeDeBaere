@@ -141,13 +141,14 @@ namespace dae
 			const float ln = Vector3::Dot(l, hitRecord.normal);
 
 
-			const ColorRGB specular = (d * f * g) / (4 * Vector3::Dot(v, hitRecord.normal) * Vector3::Dot(l, hitRecord.normal));
+			const ColorRGB specular = fdg / (4 * Vector3::Dot(v, hitRecord.normal) * Vector3::Dot(l, hitRecord.normal));
 			//const ColorRGB specular = { fdg.r / (4 * vn * ln), fdg.g / (4 * vn * ln),fdg.b / (4 * vn * ln) }; //w3, slide 67
 			
 			const ColorRGB kd = ColorRGB{ 1, 1, 1 } - f; //diffuse reflectance
 
 			const ColorRGB diffuse{ BRDF::Lambert(kd, m_Albedo) };
 
+			//return d * ColorRGB{ 1.f, 1.f, 1.f };
 			return (diffuse + specular);
 		}
 

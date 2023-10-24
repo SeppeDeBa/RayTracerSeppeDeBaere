@@ -90,7 +90,7 @@ namespace dae
 			const float dotnh{ Vector3::Dot(n,h) };
 
 			const float  denominator{ PI * Square(Square(dotnh) * (roughnessDoubleSquared - 1.f) + 1.f )};
-			const float trowbridgeReitzGGX{ roughnessSquared / denominator };
+			const float trowbridgeReitzGGX{ roughnessDoubleSquared / denominator };
 	
 			return trowbridgeReitzGGX;
 		}

@@ -50,17 +50,19 @@ void Renderer::Render(Scene* pScene) const
 			//gradient /= 2.0f;
 
 			Vector3 finalRayVector{ cameraToWorld.TransformVector(rayDirectionX, rayDirectionY,1).Normalized() };
-				
+
 
 			//old code, keeping for backup
 			//Vector3 finalRayVector{ rayDirectionX
 			//					,	rayDirectionY
 			//					,	1.f }; //constant 1; could be 0 but making 1 to add blue to match the renderer example
 			//finalRayVector.Normalize();
-		
+
 
 			Ray viewRay{ camera.origin, finalRayVector };
-
+			ColorRGB finalColor{};
+			HitRecord closestHit{};
+			float reflectionValue{ 1 };
 
 			//show ray direction through colours:
 			//ColorRGB finalColor{ finalRayVector.x
@@ -69,12 +71,10 @@ void Renderer::Render(Scene* pScene) const
 
 			//Update Color in Buffer
 
-			ColorRGB finalColor{};
 			//finalColor.MaxToOne();
 
 			//hitRecord containing closest hit
-			HitRecord closestHit{};
-			
+
 			//using float 0.001f = DELTA_EPSILON;
 			pScene->GetClosestHit(viewRay, closestHit);
 			if (closestHit.didHit) //if not, color will stay black
@@ -135,6 +135,7 @@ void Renderer::Render(Scene* pScene) const
 				finalColor.g = 0.f;
 				finalColor.b = 0.f;
 			}
+
 			//add final colors
 			finalColor.MaxToOne();
 			m_pBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBuffer->format,

@@ -31,6 +31,14 @@ namespace dae {
 		
 		//assert(false && "No Implemented Yet!");
 		HitRecord currentHitRecord{};
+		for (const auto& triangle : m_Triangles)
+		{
+			if (GeometryUtils::HitTest_Triangle(triangle,ray, currentHitRecord))
+			{
+				closestHit = currentHitRecord;
+			}
+		}
+		//only works here?
 
 		for (const auto& sphere : m_SphereGeometries)//loop over spheres
 		{
@@ -52,18 +60,14 @@ namespace dae {
 			}
 		}
 
-		for (const auto& triangle : m_Triangles)
-		{
-			if (GeometryUtils::HitTest_Triangle(triangle,ray, currentHitRecord))
-			{
-				closestHit = currentHitRecord;
-			}
-		}
 		for (const auto& triangleMesh : m_TriangleMeshGeometries)//loop over triangle meshes
 		{
 			if (GeometryUtils::HitTest_TriangleMesh(triangleMesh, ray, currentHitRecord))
 			{
+				if (currentHitRecord.t < closestHit.t)
+				{
 				closestHit = currentHitRecord;
+				}
 			}
 		}
 
@@ -354,7 +358,7 @@ namespace dae {
 
 		triangleMesh->CalculateNormals();
 
-		triangleMesh->Translate({ 0.f,1.5f,0.f });
+		//triangleMesh->Translate({ 0.f,1.5f,0.f });
 		triangleMesh->UpdateTransforms();
 		//pMesh = AddTriangleMesh(TriangleCullMode::NoCulling, matLambert_White);
 		//pMesh->positions = {

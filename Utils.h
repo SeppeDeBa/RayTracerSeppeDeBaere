@@ -146,7 +146,7 @@ namespace dae
 				return false;
 			}
 
-			//cullModes
+			//cullModes slide 33
 			if (triangle.cullMode == TriangleCullMode::FrontFaceCulling)
 			{
 				if (dotRayNormal < 0.f && !ignoreHitRecord)
@@ -230,7 +230,7 @@ namespace dae
 			float distance{ FLT_MAX };
 			HitRecord tempHitRecord{};
 
-			for (int triangleNr{}; triangleNr < int(mesh.indices.size() / 3); ++triangleNr) //3 indices indicate 1 triangle
+			for (size_t triangleNr{}; triangleNr < (mesh.indices.size() / 3); ++triangleNr) //3 indices indicate 1 triangle
 			{
 				const Vector3 v0{ mesh.transformedPositions[mesh.indices[triangleNr * 3]] };
 				const Vector3 v1{ mesh.transformedPositions[mesh.indices[triangleNr * 3 + 1]] };
@@ -240,6 +240,7 @@ namespace dae
 
 				triangle.cullMode = mesh.cullMode;
 				triangle.materialIndex = mesh.materialIndex;
+
 				if (HitTest_Triangle(triangle, ray, tempHitRecord, ignoreHitRecord))
 				{
 					if (ignoreHitRecord)
