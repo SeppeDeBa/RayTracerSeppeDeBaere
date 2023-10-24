@@ -354,7 +354,7 @@ namespace dae {
 
 		triangleMesh->CalculateNormals();
 
-		//triangleMesh->Translate({ 0.f,1.5f,0.f });
+		triangleMesh->Translate({ 0.f,1.5f,0.f });
 		triangleMesh->UpdateTransforms();
 		//pMesh = AddTriangleMesh(TriangleCullMode::NoCulling, matLambert_White);
 		//pMesh->positions = {

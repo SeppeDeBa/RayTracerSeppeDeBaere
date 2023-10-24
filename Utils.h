@@ -226,6 +226,7 @@ namespace dae
 		{
 			//todo W5
 			//assert(false && "No Implemented Yet!");
+
 			float distance{ FLT_MAX };
 			HitRecord tempHitRecord{};
 
