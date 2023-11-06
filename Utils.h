@@ -134,85 +134,150 @@ namespace dae
 		//TRIANGLE HIT-TESTS
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			//todo W5
+			bool useMullerTrumbore{ true };
+			if (useMullerTrumbore)
+			{
+				const float dotRayNormal{ Vector3::Dot(triangle.normal, ray.direction) };
+				if (triangle.cullMode == TriangleCullMode::FrontFaceCulling)
+				{
+					if (dotRayNormal < 0.f && !ignoreHitRecord)
+					{
+						return false;
+					}
+					if (ignoreHitRecord && dotRayNormal > 0.f)
+					{
+						return false;
+					}
+				}
+				else if (triangle.cullMode == TriangleCullMode::BackFaceCulling)
+				{
+					if (dotRayNormal > 0.f && !ignoreHitRecord)
+					{
+						return false;
+					}
+					if (ignoreHitRecord && dotRayNormal < 0.f)
+					{
+						return false;
+					}
+				}
+				//todo W5
 			//assert(false && "No Implemented Yet!");
 
 			//slide 4
-			const Vector3 a = triangle.v1 - triangle.v0;
-			const Vector3 b = triangle.v2 - triangle.v0;
-			const float dotRayNormal{ Vector3::Dot(triangle.normal, ray.direction) };
-			if (AreEqual(dotRayNormal, 0.f))
-			{
-				return false;
-			}
+				const Vector3 edgeOne = triangle.v1 - triangle.v0;
+				const Vector3 edgeTwo = triangle.v2 - triangle.v0;
+				Vector3 h = Vector3::Cross(ray.direction, edgeTwo);
 
-			//cullModes slide 33
-			if (triangle.cullMode == TriangleCullMode::FrontFaceCulling)
+				float a = Vector3::Dot(h, edgeOne);
+
+				const float DELTA = 0.0001f;
+				if (a > -DELTA && a < DELTA) return false;
+
+
+				const float f = 1.f / a;
+				const Vector3 s = ray.origin - triangle.v0;
+				const float u = f * Vector3::Dot(s, h);
+				if (u < 0.f || u > 1.f) return false;
+
+				const Vector3 q = Vector3::Cross(s, edgeTwo);
+				const float v = f * Vector3::Dot(q, ray.direction);
+				if (v < 0.f || v > 1.f) return false;
+
+				const float t = f * Vector3::Dot( edgeTwo, q);
+
+				if (t > DELTA)hitRecord.t = std::min(hitRecord.t, t);
+
+				hitRecord.didHit = true;
+				hitRecord.normal = triangle.normal;
+				hitRecord.materialIndex = triangle.materialIndex;
+				hitRecord.origin = ray.origin;
+
+			}
+			//=====  OLD =====
+			else
 			{
-				if (dotRayNormal < 0.f && !ignoreHitRecord)
+				//todo W5
+				//assert(false && "No Implemented Yet!");
+
+				//slide 4
+				const Vector3 a = triangle.v1 - triangle.v0;
+				const Vector3 b = triangle.v2 - triangle.v0;
+				const float dotRayNormal{ Vector3::Dot(triangle.normal, ray.direction) };
+				if (AreEqual(dotRayNormal, 0.f))
 				{
 					return false;
 				}
-				if (ignoreHitRecord && dotRayNormal > 0.f)
+
+				//cullModes slide 33
+				if (triangle.cullMode == TriangleCullMode::FrontFaceCulling)
+				{
+					if (dotRayNormal < 0.f && !ignoreHitRecord)
+					{
+						return false;
+					}
+					if (ignoreHitRecord && dotRayNormal > 0.f)
+					{
+						return false;
+					}
+				}
+				else if (triangle.cullMode == TriangleCullMode::BackFaceCulling)
+				{
+					if (dotRayNormal > 0.f && !ignoreHitRecord)
+					{
+						return false;
+					}
+					if (ignoreHitRecord && dotRayNormal < 0.f)
+					{
+						return false;
+					}
+				}
+
+				const Vector3 center = (triangle.v0 + triangle.v1 + triangle.v2) / 3.f;
+
+				const Vector3 l = center - ray.origin;
+
+
+				//slide 5
+				const float t = Vector3::Dot(l, triangle.normal) / Vector3::Dot(ray.direction, triangle.normal);
+				if (t < ray.min || t > ray.max)
 				{
 					return false;
 				}
-			}
-			else if (triangle.cullMode == TriangleCullMode::BackFaceCulling)
-			{
-				if (dotRayNormal > 0.f && !ignoreHitRecord)
+
+				//slide 18
+				const Vector3 p = ray.origin + t * ray.direction;
+
+				//check all edges
+				const Vector3 edgeA = triangle.v1 - triangle.v0;
+				const Vector3 pointToSideV0 = p - triangle.v0;
+				if (Vector3::Dot(triangle.normal, Vector3::Cross(edgeA, pointToSideV0)) < 0)
 				{
 					return false;
 				}
-				if (ignoreHitRecord && dotRayNormal < 0.f)
+
+				const Vector3 edgeB = triangle.v2 - triangle.v1;
+				const Vector3 pointToSideV1 = p - triangle.v1;
+				if (Vector3::Dot(triangle.normal, Vector3::Cross(edgeB, pointToSideV1)) < 0)
 				{
 					return false;
 				}
+
+				const Vector3 edgeC = triangle.v0 - triangle.v2;
+				const Vector3 pointToSideV2 = p - triangle.v2;
+				if (Vector3::Dot(triangle.normal, Vector3::Cross(edgeC, pointToSideV2)) < 0)
+				{
+					return false;
+				}
+
+				hitRecord.didHit = true;
+				hitRecord.normal = triangle.normal;
+				hitRecord.materialIndex = triangle.materialIndex;
+				hitRecord.t = t;
+				hitRecord.origin = p;
+				return true;
+
 			}
 
-			const Vector3 center = (triangle.v0 + triangle.v1 + triangle.v2) / 3.f;
-
-			const Vector3 l = center - ray.origin;
-
-
-			//slide 5
-			const float t = Vector3::Dot(l, triangle.normal) / Vector3::Dot(ray.direction, triangle.normal);
-			if (t < ray.min || t > ray.max)
-			{
-				return false;
-			}
-
-			//slide 18
-			const Vector3 p = ray.origin + t * ray.direction;
-
-			//check all edges
-			const Vector3 edgeA = triangle.v1 - triangle.v0;
-			const Vector3 pointToSideV0 = p - triangle.v0;
-			if (Vector3::Dot(triangle.normal, Vector3::Cross(edgeA, pointToSideV0)) < 0)
-			{
-				return false;
-			}
-
-			const Vector3 edgeB = triangle.v2 - triangle.v1;
-			const Vector3 pointToSideV1 = p - triangle.v1;
-			if (Vector3::Dot(triangle.normal, Vector3::Cross(edgeB, pointToSideV1)) < 0)
-			{
-				return false;
-			}
-
-			const Vector3 edgeC = triangle.v0 - triangle.v2;
-			const Vector3 pointToSideV2 = p - triangle.v2;
-			if (Vector3::Dot(triangle.normal, Vector3::Cross(edgeC, pointToSideV2)) < 0)
-			{
-				return false;
-			}
-
-			hitRecord.didHit = true;
-			hitRecord.normal = triangle.normal;
-			hitRecord.materialIndex = triangle.materialIndex;
-			hitRecord.t = t;
-			hitRecord.origin = p;
-			return true;
 		}
 
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray)
