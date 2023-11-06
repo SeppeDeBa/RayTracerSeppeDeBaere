@@ -3,6 +3,7 @@
 #include "SDL_surface.h"
 
 //Project includes
+#include <execution>
 #include "Math.h"
 #include "Matrix.h"
 #include "Material.h"
@@ -11,7 +12,7 @@
 #include "Renderer.h"
 
 
-//#define PARALLEL_EXECUTION
+#define PARALLEL_EXECUTION
 using namespace dae;
 
 Renderer::Renderer(SDL_Window * pWindow) :
@@ -167,6 +168,13 @@ void Renderer::Render(Scene* pScene) const
 
 #if defined (PARALLEL_EXECUTION)
 	//parallel logic
+	uint32_t amountOfPixels{ uint32_t(m_Width * m_Height) };
+	std::vector<uint32_t> pixelIndices{};
+
+	pixelIndices.reserve(amountOfPixels);
+	for (uint32_t index{}; index < amountOfPixels; ++index) pixelIndices.emplace_back(index);
+
+	std::for_each(std::execution::par, pixelIndices.begin(), pixelIndices.end(), [&](int i) {RenderPixel(pScene, i, fov, aspectRatio, cameraToWorld, camera.origin); });
 
 #else
 	//Synchronous logic (no threading)
