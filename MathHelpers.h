@@ -28,4 +28,24 @@ namespace dae
 	{
 		return abs(a - b) < epsilon;
 	}
+
+	//TODO: Ask if this is fine
+	inline float Quake3Sqrt(float number) //https://www.youtube.com/watch?v=p8u_k2LIZyo&t=170s&ab_channel=Nemean link to video, can check on wikipedia aswell
+	{
+		long i;
+		float x2, y;
+		const float threehalfs = 1.5f;
+
+		x2 = number * 0.5f;
+		y = number;
+
+		i = *(long*)&y;
+		i = 0x5f3759df - (i >> 1);
+
+		y = *(float*)&i;
+		y = y * (threehalfs - (x2 * y * y));
+		//can do more iterations but 1 is fine.
+		//y = y * (threehalfs - (x2 * y * y));
+		return y;
+	}
 }

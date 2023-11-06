@@ -108,6 +108,20 @@ namespace dae
 				forward = rotationMatrix.TransformVector(Vector3::UnitZ);
 				forward.Normalize();
 			}
+
+
+			if ((mouseState & SDL_BUTTON_LMASK) != 0)
+			{
+				totalYaw += mouseX * rotationSpeed;
+				const Vector3 movement = forward * static_cast<float>(-mouseY) * movementSpeed;
+
+				rotationMatrix = Matrix::CreateRotation(totalPitch, totalYaw, 0);
+
+				forward = rotationMatrix.TransformVector(Vector3::UnitZ);
+				forward.Normalize();
+
+				this->origin += movement;
+			}	
 		}
 	};
 }

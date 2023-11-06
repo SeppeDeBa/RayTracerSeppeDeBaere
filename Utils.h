@@ -9,11 +9,12 @@ namespace dae
 {
 	namespace GeometryUtils
 	{
+
+
 #pragma region Sphere HitTest
 		//SPHERE HIT-TESTS
 		inline bool HitTest_Sphere(const Sphere& sphere, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-
 			bool useReworkedVersion{ true };
 			if (!useReworkedVersion)
 			{
@@ -32,6 +33,8 @@ namespace dae
 				//std::cout << "passed discriminant check" << std::endl;
 				const float perpPointToSphereCenter = Vector3::Reject(originToCenter, ray.direction).SqrMagnitude();//od^2
 				const float intersectToPerp = sqrt(sphere.radius * sphere.radius - lengthOriginToPerpSphereCenter);//thc
+
+
 				const float intersectFrontLength = lengthOriginToPerpSphereCenter - intersectToPerp;//t0
 				if (intersectFrontLength > ray.max)
 				{
@@ -72,7 +75,7 @@ namespace dae
 					return false;
 				}
 
-				const float distanceRaypointToIntersect{ sqrt(sphere.radius * sphere.radius - distanceToRaySquared) };
+				const float distanceRaypointToIntersect{ std::sqrt(sphere.radius * sphere.radius - distanceToRaySquared) };
 				const float distance{ side1 - distanceRaypointToIntersect };
 
 				if (distance < ray.min || distance > ray.max) {
@@ -134,7 +137,7 @@ namespace dae
 		//TRIANGLE HIT-TESTS
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			bool useMullerTrumbore{ true };
+			bool useMullerTrumbore{ false };
 			if (useMullerTrumbore)
 			{
 				const float dotRayNormal{ Vector3::Dot(triangle.normal, ray.direction) };
@@ -176,7 +179,7 @@ namespace dae
 
 				const float f = 1.f / a;
 				const Vector3 s = ray.origin - triangle.v0;
-				const float u = f * Vector3::Dot(s, h);
+				const float u = f * Vector3::Dot(h, s);
 				if (u < 0.f || u > 1.f) return false;
 
 				const Vector3 q = Vector3::Cross(s, edgeTwo);
@@ -203,7 +206,7 @@ namespace dae
 				const Vector3 a = triangle.v1 - triangle.v0;
 				const Vector3 b = triangle.v2 - triangle.v0;
 				const float dotRayNormal{ Vector3::Dot(triangle.normal, ray.direction) };
-				if (AreEqual(dotRayNormal, 0.f))
+				if (dotRayNormal == 0.f)
 				{
 					return false;
 				}
