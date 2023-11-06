@@ -5,6 +5,9 @@
 
 struct SDL_Window;
 struct SDL_Surface;
+class Matrix;
+
+
 
 namespace dae
 {
