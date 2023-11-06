@@ -370,6 +370,7 @@ namespace dae {
 		pMesh->Scale({ .7f, .7f, .7f });
 
 		pMesh->Translate({ 0.f,1.f,0.f });
+		pMesh->UpdateAABB();
 		pMesh->UpdateTransforms();
 
 		////OBJ
@@ -398,6 +399,7 @@ namespace dae {
 		Scene::Update(pTimer);
 
 		pMesh->RotateY(PI_DIV_2 * pTimer->GetTotal());
+		pMesh->UpdateAABB();
 		pMesh->UpdateTransforms();
 	}
 
@@ -474,11 +476,12 @@ namespace dae {
 	{
 		Scene::Update(pTimer);
 
-		const auto yawAngle = (cos(pTimer->GetTotal()) + 1.f) / 2.f * PI_2;
-
+		const float rotationPerSecond{ 180.f }; //degrees per second
+		const float currentTotalTime{ pTimer->GetTotal()};
 		for (const auto m : m_Meshes)
 		{
-			m->RotateY(yawAngle); //TODO: Ask how to make this framerate Independent
+			m->RotateY(rotationPerSecond * currentTotalTime); //TODO: Ask how to make this framerate Independent
+			m->UpdateAABB();
 			m->UpdateTransforms();
 		}
 
@@ -519,6 +522,8 @@ namespace dae {
 			pMesh->indices);
 
 		pMesh->Scale({ 2.f, 2.f, 2.f });
+
+		pMesh->UpdateAABB();
 		pMesh->UpdateTransforms();
 
 		//CW Winding Order!
@@ -558,6 +563,19 @@ namespace dae {
 		AddPointLight(Vector3{ 0.f, 5.f, 5.f }, 50.f, ColorRGB{ 1.f, .61f, .45f }); //Backlight
 		AddPointLight(Vector3{ -2.5f, 5.f, -5.f }, 70.f, ColorRGB{ 1.f, .8f, .45f }); //Front Light Left
 		AddPointLight(Vector3{ 2.5f, 2.5f, -5.f }, 50.f, ColorRGB{ .34f, .47f, .68f });
+	}
+	void Scene_W4_BunnyScene::Update(Timer* pTimer)
+	{
+		Scene::Update(pTimer);
+
+		const auto yawAngle = (cos(pTimer->GetTotal()) * 180.f);
+		//		const auto yawAngle = (cos(pTimer->GetTotal()) + 1.f) / 2.f * PI_2;
+
+		pMesh->RotateY(yawAngle); //TODO: Ask how to make this framerate Independent
+		pMesh->UpdateAABB();
+		pMesh->UpdateTransforms();
+
+
 	}
 }
 
