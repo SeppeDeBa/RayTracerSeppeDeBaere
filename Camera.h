@@ -3,6 +3,7 @@
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
+#include <iostream>
 #include "Math.h"
 #include "Timer.h"
 
@@ -94,8 +95,14 @@ namespace dae
 			//implement rotation
 			Matrix rotationMatrix{};
 			const float rotationSpeed{ 10.f * pTimer->GetElapsed() };
-
-			if ((mouseState & SDL_BUTTON_RMASK) != 0) //right mouse
+			if ((mouseState & SDL_BUTTON_LMASK) != 0
+				&& (mouseState & SDL_BUTTON_RMASK) != 0)
+			{
+			//	std::cout << "BOTH BUTTONS" << std::endl;
+				const Vector3 movement = up * static_cast<float>(-mouseY) * movementSpeed;
+				this->origin += movement;
+			}
+			else if ((mouseState & SDL_BUTTON_RMASK) != 0) //right mouse
 			{
 				//update members
 				totalYaw += mouseX * rotationSpeed;
@@ -110,7 +117,7 @@ namespace dae
 			}
 
 
-			if ((mouseState & SDL_BUTTON_LMASK) != 0)
+			else if ((mouseState & SDL_BUTTON_LMASK) != 0)
 			{
 				totalYaw += mouseX * rotationSpeed;
 				const Vector3 movement = forward * static_cast<float>(-mouseY) * movementSpeed;
@@ -122,6 +129,8 @@ namespace dae
 
 				this->origin += movement;
 			}	
+
+
 		}
 	};
 }
