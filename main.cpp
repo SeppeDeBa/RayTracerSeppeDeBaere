@@ -37,7 +37,7 @@ int main(int argc, char* args[])
 	const float aspectRatio = (float)width / (float)height;
 
 	SDL_Window* pWindow = SDL_CreateWindow(
-		"RayTracer - De Baere Seppe",
+		"RayTracer - Seppe De Baere (2DAE10)",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		width, height, 0);
