@@ -18,16 +18,14 @@ namespace dae
 		 */
 		static ColorRGB Lambert(float kd, const ColorRGB& cd)
 		{
-			//todo: W3
-			//assert(false && "Not Implemented Yet");
+
 			auto rho = cd * kd;
 			return rho / PI; //week 3 ppt, slide 35
 		}
 
 		static ColorRGB Lambert(const ColorRGB& kd, const ColorRGB& cd)
 		{
-			//todo: W3
-			//assert(false && "Not Implemented Yet");
+
 			auto rho = cd * kd;
 			return rho / PI; //week 3 ppt, slide 35
 		}
@@ -43,7 +41,6 @@ namespace dae
 		 */
 		static ColorRGB Phong(float ks, float exp, const Vector3& l, const Vector3& v, const Vector3& n)
 		{
-			//todo: W3
 			//const Vector3 reflect = l - (2.f *  (Vector3::Dot(n, l) * n)); //powerpoint week 3, slide 47
 			const Vector3 reflect = Vector3::Reflect(l, n); //replaced with built in function of framework
 			float cosAlpha = Vector3::Dot(reflect, v);
@@ -64,8 +61,7 @@ namespace dae
 		 */
 		static ColorRGB FresnelFunction_Schlick(const Vector3& h, const Vector3& v, const ColorRGB& f0)
 		{
-			//todo: W3
-			//assert(false && "Not Implemented Yet");
+
 			const ColorRGB metalness{ 1.f - f0.r, 1.f - f0.g, 1 - f0.b }; //replacing f0 in the fresnel calculation with this
 			const ColorRGB Fresnel{ f0 + (metalness * powf(1 - Vector3::Dot(h,v), 5)) }; //added extra brackets before metalness for visual clarity
 			return Fresnel;
@@ -82,8 +78,7 @@ namespace dae
 		 */
 		static float NormalDistribution_GGX(const Vector3& n, const Vector3& h, float roughness)
 		{
-			//todo: W3
-			//assert(false && "Not Implemented Yet");
+
 			//https://ix.cs.uoregon.edu/~hank/441/lectures/pbr_slides.pdf personal source to recheck
 			const float roughnessSquared{ Square( roughness )};
 			const float roughnessDoubleSquared{ Square(roughnessSquared) }; //not sure if this is necessary
@@ -105,8 +100,7 @@ namespace dae
 		 */
 		static float GeometryFunction_SchlickGGX(const Vector3& n, const Vector3& v, float roughness)
 		{
-			//todo: W3
-			//assert(false && "Not Implemented Yet");
+
 			const float dotnv{ Vector3::Dot(n,v) };
 			const float overshadowing{ dotnv	 / ((dotnv * (1.f - roughness)) + roughness) };
 			return overshadowing;//term from slide 70 w3
@@ -122,8 +116,7 @@ namespace dae
 		 */
 		static float GeometryFunction_Smith(const Vector3& n, const Vector3& v, const Vector3& l, float roughness)
 		{
-			//todo: W3
-			//assert(false && "Not Implemented Yet");
+
 			//direct lighting w3 slide 70
 			const float roughnessSquared{ Square(roughness) };
 			const float k{ Square(roughnessSquared + 1.f) / 8.f };

@@ -59,8 +59,7 @@ namespace dae
 
 		ColorRGB Shade(const HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
 		{
-			//todo: W3
-			//assert(false && "Not Implemented Yet");
+
 			return BRDF::Lambert(m_DiffuseReflectance, m_DiffuseColor);
 		}
 
@@ -84,8 +83,7 @@ namespace dae
 
 		ColorRGB Shade(const HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
 		{
-			//todo: W3
-			//assert(false && "Not Implemented Yet");
+
 			return BRDF::Lambert(m_DiffuseReflectance, m_DiffuseColor)
 				+ BRDF::Phong(m_SpecularReflectance, m_PhongExponent, l, -v, hitRecord.normal);//week 3 ppt, slide 48
 		}
@@ -110,14 +108,9 @@ namespace dae
 
 		ColorRGB Shade(const HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
 		{
-			//todo: W3
-			//assert(false && "Not Implemented Yet");
 
-			//slide 73 w3!
-			//if (m_Roughness < 0.1f)
-			//{
-			//	return{};
-			//}
+
+
 			ColorRGB f0{}; //week 3 ppt, slide 69
 			if (m_Metalness == 0.f)
 			{

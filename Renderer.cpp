@@ -26,7 +26,7 @@ Renderer::Renderer(SDL_Window * pWindow) :
 	m_AspectRatio = (float)m_Width / m_Height;
 	m_ScreenMiddle.x = (float)m_Width / 2.f - 0.5f; //0.5 for pixel offset
 	m_ScreenMiddle.y = (float)m_Height / 2.f - 0.5f;//same as .x
-	m_ScreenMiddle.z = 1.f; //todo 1: ask if this if fine?
+	m_ScreenMiddle.z = 1.f; 
 }
 
 //old renderer function

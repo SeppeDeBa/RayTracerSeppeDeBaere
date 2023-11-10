@@ -5,6 +5,7 @@
 #include "DataTypes.h"
 #include <iostream>
 
+//TODO: Main optimisation could further happen here (mostly in triangelHitTest)
 namespace dae
 {
 	namespace GeometryUtils
@@ -137,7 +138,7 @@ namespace dae
 		//TRIANGLE HIT-TESTS
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			bool useMullerTrumbore{ false }; //TODO: Make this work >:(
+			bool useMullerTrumbore{ false }; //TODO: Make this work in christmas break or summer break if I want to make this into a portfolio piece
 			if (useMullerTrumbore)
 			{
 				const float dotRayNormal{ Vector3::Dot(triangle.normal, ray.direction) };
@@ -163,8 +164,7 @@ namespace dae
 						return false;
 					}
 				}
-				//todo W5
-			//assert(false && "No Implemented Yet!");
+
 
 			//slide 4
 				const Vector3 edgeOne = triangle.v1 - triangle.v0;
@@ -200,8 +200,7 @@ namespace dae
 			//=====  OLD =====
 			else
 			{
-				//todo W5
-				//assert(false && "No Implemented Yet!");
+
 
 				//slide 4
 				const Vector3 a = triangle.v1 - triangle.v0;
@@ -368,14 +367,13 @@ namespace dae
 		inline Vector3 GetDirectionToLight(const Light& light, const Vector3 origin)
 		{
 		
-			//assert(false && "No Implemented Yet!");
+
 			return light.origin - origin;
 		}
 
 		inline ColorRGB GetRadiance(const Light& light, const Vector3& target) //does this not return irradiance?
 		{
-			//todo W3
-			//assert(false && "No Implemented Yet!");
+
 			ColorRGB irradiance{};
 			switch (light.type)
 			{

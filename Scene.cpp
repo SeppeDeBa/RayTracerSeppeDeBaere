@@ -29,7 +29,7 @@ namespace dae {
 	void dae::Scene::GetClosestHit(const Ray& ray, HitRecord& closestHit) const
 	{
 		
-		//assert(false && "No Implemented Yet!");
+	
 		HitRecord currentHitRecord{};
 		for (const auto& triangle : m_Triangles)
 		{
@@ -38,7 +38,7 @@ namespace dae {
 				closestHit = currentHitRecord;
 			}
 		}
-		//only works here?
+
 
 		for (const auto& sphere : m_SphereGeometries)//loop over spheres
 		{
@@ -251,13 +251,6 @@ namespace dae {
 		AddPlane(Vector3{ -5.f, 0.f, 0.f }, Vector3{ 1.f, 0.f, 0.f }, matLambert_GrayBlue); //LEFT
 
 
-		//temporary Lambert-Phong Spheres & Materials
-		/*const auto matLambertPhong1 = AddMaterial(new Material_LambertPhong(colors::Blue, 0.5f, 0.5f, 3.f));
-		const auto matLambertPhong2 = AddMaterial(new Material_LambertPhong(colors::Blue, 0.5f, 0.5f, 15.f));
-		const auto matLambertPhong3 = AddMaterial(new Material_LambertPhong(colors::Blue, 0.5f, 0.5f, 50.f));*/
-		//AddSphere(Vector3{ -1.75f, 1.f, 0.f }, .75f, matLambertPhong1);
-		//AddSphere(Vector3{ 0, 1.f, 0.f }, .75f, matLambertPhong2);
-		//AddSphere(Vector3{ 1.75f, 1.f, 0.f }, .75f, matLambertPhong3);
 
 		AddSphere(Vector3{ -1.75f, 1.f, 0.f }, .75f, matCT_GrayRoughMetal);
 		AddSphere(Vector3{ 0.f, 1.f, 0.f }, .75f, matCT_GrayMediumMetal);
@@ -285,38 +278,6 @@ namespace dae {
 		AddPlane({ 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }, matLambert_DarkBlue);
 
 
-		//===LAMBERT TEST===
-		//default: Material id0 >> SolidColor Material (RED)
-		//const auto matLambert_Red = AddMaterial(new Material_Lambert(colors::Red, 1.f));
-		//const auto matLambert_Blue = AddMaterial(new Material_Lambert(colors::Blue, 1.f));
-		//const auto matLambert_Yellow = AddMaterial(new Material_Lambert(colors::Yellow, 1.f));
-
-		//
-		//AddSphere({ -.75f, 1.f, .0f }, 1.f, matLambert_Red);
-		//AddSphere({ .75f, 1.f, .0f }, 1.f, matLambert_Blue);
-
-		//AddPlane({ 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }, matLambert_Yellow);
-
-		//AddPointLight({ 0.f, 5.f, 5.f }, 25.f, colors::White);
-
-		//AddPointLight({ 0.f, 2.5f, -5.f }, 25.f, colors::White);
-
-
-
-		//===INTERMEDIARY TEST===
-		//constexpr unsigned char matId_Solid_Red = 0;
-		//const unsigned char matId_Solid_Blue = AddMaterial(new Material_SolidColor{ colors::Blue });
-		//const unsigned char matId_Solid_Yellow = AddMaterial(new Material_SolidColor{ colors::Yellow });
-
-		////Spheres
-		//AddSphere({ -.75f, 1.f, .0f }, 1.f, matId_Solid_Red);
-		//AddSphere({ .75f, 1.f, .0f }, 1.f, matId_Solid_Blue);
-
-		////Plane
-		//AddPlane({ 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }, matId_Solid_Yellow);
-
-		////Light
-		//AddPointLight({ 0.f, 5.f, -5.f }, 25.f, colors::White);
 	}
 	void Scene_W4_TestScene::Initialize()
 	{
@@ -334,33 +295,6 @@ namespace dae {
 		AddPlane(Vector3{ 5.f, 0.f, 0.f }, Vector3{ -1.f, 0.f, 0.f }, matLambert_GrayBlue); //RIGHT
 		AddPlane(Vector3{ -5.f, 0.f, 0.f }, Vector3{ 1.f, 0.f, 0.f }, matLambert_GrayBlue); //LEFT
 
-		////Triangle (Temp)
-		////===============
-		//auto triangle = Triangle{ {-.75f,.5f,.0f},{-.75f,2.f, .0f}, {.75f,.5f,0.f} };
-		//triangle.cullMode = TriangleCullMode::NoCulling;
-		//triangle.materialIndex = matLambert_White;
-
-		//m_Triangles.emplace_back(triangle);
-
-		//Triangle Mesh
-		//=============
-		//const auto triangleMesh = AddTriangleMesh(TriangleCullMode::NoCulling, matLambert_White);
-		//triangleMesh->positions = {
-		//	{-.75f,-1.f,.0f},  //V0
-		//	{-.75f,1.f, .0f},  //V2
-		//	{.75f,1.f,1.f},    //V3
-		//	{.75f,-1.f,0.f} }; //V4
-
-		//triangleMesh->indices = {
-		//	0,1,2, //Triangle 1
-		//	0,2,3  //Triangle 2
-		//};
-
-		//triangleMesh->CalculateNormals();
-
-		//triangleMesh->Translate({ 0.f,1.5f,0.f });
-		//triangleMesh->RotateY(45);
-		//triangleMesh->UpdateTransforms();
 		pMesh = AddTriangleMesh(TriangleCullMode::BackFaceCulling, matLambert_White);
 		Utils::ParseOBJ("Resources/simple_cube.obj",
 			pMesh->positions,
@@ -372,21 +306,6 @@ namespace dae {
 		pMesh->Translate({ 0.f,1.f,0.f });
 		pMesh->UpdateAABB();
 		pMesh->UpdateTransforms();
-
-		////OBJ
-		////===
-		//pMesh = AddTriangleMesh(TriangleCullMode::BackFaceCulling, matLambert_White);
-		//Utils::ParseOBJ("Resources/simple_cube.obj",
-		////Utils::ParseOBJ("Resources/simple_object.obj",
-		//	pMesh->positions, 
-		//	pMesh->normals, 
-		//	pMesh->indices);
-
-		////No need to Calculate the normals, these are calculated inside the ParseOBJ function
-		//pMesh->UpdateTransforms();
-
-		//pMesh->Scale({ .7f,.7f,.7f });
-		//pMesh->Translate({ .0f,1.f,0.f });
 
 
 		//Light
@@ -453,21 +372,6 @@ namespace dae {
 		m_Meshes[2]->UpdateTransforms();
 
 
-		//AddTriangleMesh(TriangleCullMode::BackFaceCulling, matLambert_White);
-		//m_TriangleMeshGeometries[0].AppendTriangle(baseTriangle, true);
-		//m_TriangleMeshGeometries[0].Translate({ -1.75f,4.5f,0.f });
-		//m_TriangleMeshGeometries[0].UpdateTransforms();
-
-		//AddTriangleMesh(TriangleCullMode::FrontFaceCulling, matLambert_White);
-		//m_TriangleMeshGeometries[1].AppendTriangle(baseTriangle, true);
-		//m_TriangleMeshGeometries[1].Translate({ 0.f,4.5f,0.f });
-		//m_TriangleMeshGeometries[1].UpdateTransforms();
-
-		//AddTriangleMesh(TriangleCullMode::NoCulling, matLambert_White);
-		//m_TriangleMeshGeometries[2].AppendTriangle(baseTriangle, true);
-		//m_TriangleMeshGeometries[2].Translate({ 1.75f,4.5f,0.f });
-		//m_TriangleMeshGeometries[2].UpdateTransforms();
-
 		AddPointLight(Vector3{ 0.f, 5.f, 5.f }, 50.f, ColorRGB{ 1.f, .61f, .45f }); //Backlight
 		AddPointLight(Vector3{ -2.5f, 5.f, -5.f }, 70.f, ColorRGB{ 1.f, .8f, .45f }); //Front Light Left
 		AddPointLight(Vector3{ 2.5f, 2.5f, -5.f }, 50.f, ColorRGB{ .34f, .47f, .68f });
@@ -480,7 +384,7 @@ namespace dae {
 		const float currentTotalTime{ pTimer->GetTotal()};
 		for (const auto m : m_Meshes)
 		{
-			m->RotateY(rotationPerSecond * currentTotalTime); //TODO: Ask how to make this framerate Independent
+			m->RotateY(rotationPerSecond * currentTotalTime); 
 			m->UpdateAABB();
 			m->UpdateTransforms();
 		}
@@ -508,12 +412,6 @@ namespace dae {
 		AddPlane(Vector3{ 5.f, 0.f, 0.f }, Vector3{ -1.f, 0.f, 0.f }, matLambert_GrayBlue); //RIGHT
 		AddPlane(Vector3{ -5.f, 0.f, 0.f }, Vector3{ 1.f, 0.f, 0.f }, matLambert_GrayBlue); //LEFT
 
-		//AddSphere(Vector3{ -1.75f, 1.f, 0.f }, .75f, matCT_GrayRoughMetal);
-		//AddSphere(Vector3{ 0.f, 1.f, 0.f }, .75f, matCT_GrayMediumMetal);
-		//AddSphere(Vector3{ 1.75f, 1.f, 0.f }, .75f, matCT_GraySmoothMetal);
-		//AddSphere(Vector3{ -1.75f, 3.f, 0.f }, .75f, matCT_GrayRoughPlastic);
-		//AddSphere(Vector3{ 0.f, 3.f, 0.f }, .75f, matCT_GrayMediumPlastic);
-		//AddSphere(Vector3{ 1.75f, 3.f, 0.f }, .75f, matCT_GraySmoothPlastic);
 
 		pMesh = AddTriangleMesh(TriangleCullMode::BackFaceCulling, matLambert_White);
 		Utils::ParseOBJ("Resources/lowpoly_bunny.obj",
@@ -526,39 +424,7 @@ namespace dae {
 		pMesh->UpdateAABB();
 		pMesh->UpdateTransforms();
 
-		//CW Winding Order!
-		//const Triangle baseTriangle = { Vector3(-.75f, 1.5f, 0.f), Vector3(.75f, 0.f, 0.f), Vector3(-.75f, 0.f, 0.f) };
-
-		/*m_Meshes[0] = AddTriangleMesh(TriangleCullMode::BackFaceCulling, matLambert_White);
-		m_Meshes[0]->AppendTriangle(baseTriangle, true);
-		m_Meshes[0]->Translate({ -1.75f,4.5f,0.f });
-		m_Meshes[0]->UpdateTransforms();
-
-		m_Meshes[1] = AddTriangleMesh(TriangleCullMode::FrontFaceCulling, matLambert_White);
-		m_Meshes[1]->AppendTriangle(baseTriangle, true);
-		m_Meshes[1]->Translate({ 0.f,4.5f,0.f });
-		m_Meshes[1]->UpdateTransforms();
-
-		m_Meshes[2] = AddTriangleMesh(TriangleCullMode::NoCulling, matLambert_White);
-		m_Meshes[2]->AppendTriangle(baseTriangle, true);
-		m_Meshes[2]->Translate({ 1.75f,4.5f,0.f });
-		m_Meshes[2]->UpdateTransforms();*/
-
-
-		//AddTriangleMesh(TriangleCullMode::BackFaceCulling, matLambert_White);
-		//m_TriangleMeshGeometries[0].AppendTriangle(baseTriangle, true);
-		//m_TriangleMeshGeometries[0].Translate({ -1.75f,4.5f,0.f });
-		//m_TriangleMeshGeometries[0].UpdateTransforms();
-
-		//AddTriangleMesh(TriangleCullMode::FrontFaceCulling, matLambert_White);
-		//m_TriangleMeshGeometries[1].AppendTriangle(baseTriangle, true);
-		//m_TriangleMeshGeometries[1].Translate({ 0.f,4.5f,0.f });
-		//m_TriangleMeshGeometries[1].UpdateTransforms();
-
-		//AddTriangleMesh(TriangleCullMode::NoCulling, matLambert_White);
-		//m_TriangleMeshGeometries[2].AppendTriangle(baseTriangle, true);
-		//m_TriangleMeshGeometries[2].Translate({ 1.75f,4.5f,0.f });
-		//m_TriangleMeshGeometries[2].UpdateTransforms();
+		
 
 		AddPointLight(Vector3{ 0.f, 5.f, 5.f }, 50.f, ColorRGB{ 1.f, .61f, .45f }); //Backlight
 		AddPointLight(Vector3{ -2.5f, 5.f, -5.f }, 70.f, ColorRGB{ 1.f, .8f, .45f }); //Front Light Left
@@ -571,7 +437,7 @@ namespace dae {
 		const auto yawAngle = (cos(pTimer->GetTotal()) * 180.f);
 		//		const auto yawAngle = (cos(pTimer->GetTotal()) + 1.f) / 2.f * PI_2;
 
-		pMesh->RotateY(yawAngle); //TODO: Ask how to make this framerate Independent
+		pMesh->RotateY(yawAngle);
 		pMesh->UpdateAABB();
 		pMesh->UpdateTransforms();
 

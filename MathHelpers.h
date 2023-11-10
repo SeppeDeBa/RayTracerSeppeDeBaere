@@ -29,7 +29,7 @@ namespace dae
 		return abs(a - b) < epsilon;
 	}
 
-	//TODO: Ask if this is fine
+	//TODO: Leaving this in as a test and reminder that it exists, currently unused since it is technically undefined behaviour
 	inline float Quake3Sqrt(float number) //https://www.youtube.com/watch?v=p8u_k2LIZyo&t=170s&ab_channel=Nemean link to video, can check on wikipedia aswell
 	{
 		long i;
